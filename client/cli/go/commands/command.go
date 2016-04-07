@@ -38,7 +38,6 @@ type Options struct {
 
 type Command interface {
 	Name() string
-	Help()
 	Exec([]string) error
 }
 
@@ -55,10 +54,6 @@ func (c *Cmd) Name() string {
 	return c.name
 }
 
-func (c *Cmd) Help() {
-	c.flags.Usage()
-}
-
 func (c *Cmd) Exec(args []string) error {
 	c.flags.Parse(args)
 
@@ -72,7 +67,6 @@ func (c *Cmd) Exec(args []string) error {
 		if c.flags.Arg(0) == cmd.Name() {
 			err := cmd.Exec(c.flags.Args()[1:])
 			if err != nil {
-				cmd.Help()
 				return err
 			}
 			return nil

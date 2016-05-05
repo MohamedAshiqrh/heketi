@@ -42,14 +42,14 @@ type ConfigFile struct {
 }
 
 func init() {
-	RootCmd.AddCommand(loadCommand)
-	loadCommand.Flags().StringVarP(&jsonConfigFile, "json", "j", "",
+	RootCmd.AddCommand(LoadCommand)
+	LoadCommand.Flags().StringVarP(&jsonConfigFile, "json", "j", "",
 		"\n\tConfiguration containing devices, nodes, and clusters, in"+
 			"\n\tJSON format.")
-	loadCommand.SilenceUsage = true
+	LoadCommand.SilenceUsage = true
 }
 
-var loadCommand = &cobra.Command{
+var LoadCommand = &cobra.Command{
 	Use:     "load",
 	Short:   "Add devices to Heketi from a configuration file",
 	Long:    "Add devices to Heketi from a configuration file",

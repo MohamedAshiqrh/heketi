@@ -31,7 +31,7 @@ type NodeEntry struct {
 func NewNodeEntry() *NodeEntry {
 	entry := &NodeEntry{}
 	entry.Devices = make(sort.StringSlice, 0)
-	entry.SetOnline()
+	entry.State = entry.SetOnline()
 
 	return entry
 }
@@ -52,6 +52,7 @@ func NewNodeEntryFromId(tx *bolt.Tx, id string) (*NodeEntry, error) {
 	godbc.Require(tx != nil)
 
 	entry := NewNodeEntry()
+	logger.Info("rtalur Entered newNodeEntry Key %v", id)
 	err := EntryLoad(tx, entry, id)
 	if err != nil {
 		return nil, err
@@ -309,20 +310,23 @@ func (n *NodeEntry) NewInfoReponse(tx *bolt.Tx) (*api.NodeInfoResponse, error) {
 	info.State = n.State
 	info.DevicesInfo = make([]api.DeviceInfoResponse, 0)
 
+	logger.Info("rtalur Entered NewinfoResponse ID: %v", info.Id)
 	// Add each drive information
 	for _, deviceid := range n.Devices {
+		logger.Info("rtalur Checking Device ID: %v", deviceid)
 		device, err := NewDeviceEntryFromId(tx, deviceid)
 		if err != nil {
 			return nil, err
 		}
-
-		driveinfo, err := device.NewInfoResponse(tx)
+		logger.Info("rtalur Getting Device Info ID: %v", deviceid)
+		driveinfo, err := device.NewInfoResponseNode(tx)
 		if err != nil {
 			return nil, err
 		}
 		info.DevicesInfo = append(info.DevicesInfo, *driveinfo)
 	}
 
+	logger.Info("rtalur Entered NewinfoResponse returning ID: %v", info.Id)
 	return info, nil
 }
 

@@ -165,7 +165,7 @@ func (a *App) DeviceInfo(w http.ResponseWriter, r *http.Request) {
 	err := a.db.View(func(tx *bolt.Tx) error {
 		entry, err := NewDeviceEntryFromId(tx, id)
 		if err == ErrNotFound {
-			http.Error(w, "Id not found", http.StatusNotFound)
+			http.Error(w, "Device Id not found", http.StatusNotFound)
 			return err
 		} else if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -326,7 +326,7 @@ func (a *App) DeviceSetState(w http.ResponseWriter, r *http.Request) {
 	err = a.db.Update(func(tx *bolt.Tx) error {
 		device, err := NewDeviceEntryFromId(tx, id)
 		if err == ErrNotFound {
-			http.Error(w, "Id not found", http.StatusNotFound)
+			http.Error(w, "Device Id not found", http.StatusNotFound)
 			return err
 		} else if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

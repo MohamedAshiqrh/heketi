@@ -161,13 +161,13 @@ func (a *App) NodeInfo(w http.ResponseWriter, r *http.Request) {
 	// Get node id from URL
 	vars := mux.Vars(r)
 	id := vars["id"]
-
+	logger.Info("rtalur Entered NodeInfo Key %v", id)
 	// Get Node information
 	var info *api.NodeInfoResponse
 	err := a.db.View(func(tx *bolt.Tx) error {
 		entry, err := NewNodeEntryFromId(tx, id)
 		if err == ErrNotFound {
-			http.Error(w, "Id not found", http.StatusNotFound)
+			http.Error(w, "Node Id not found", http.StatusNotFound)
 			return err
 		} else if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -333,7 +333,7 @@ func (a *App) NodeSetState(w http.ResponseWriter, r *http.Request) {
 	err = a.db.Update(func(tx *bolt.Tx) error {
 		node, err := NewNodeEntryFromId(tx, id)
 		if err == ErrNotFound {
-			http.Error(w, "Id not found", http.StatusNotFound)
+			http.Error(w, "Node Id not found", http.StatusNotFound)
 			return err
 		} else if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

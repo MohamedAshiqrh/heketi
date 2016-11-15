@@ -16,12 +16,13 @@
 package rest
 
 import (
-	"github.com/gorilla/mux"
-	"github.com/heketi/utils"
-	"github.com/lpabon/godbc"
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/gorilla/mux"
+	"github.com/heketi/utils"
+	"github.com/lpabon/godbc"
 )
 
 var (
@@ -210,7 +211,7 @@ func (a *AsyncHttpManager) HandlerStatus(w http.ResponseWriter, r *http.Request)
 		}
 
 	} else {
-		http.Error(w, "Id not found", http.StatusNotFound)
+		http.Error(w, "Handler: Id not found", http.StatusNotFound)
 	}
 }
 

@@ -21,6 +21,6 @@ func (e *Entry) isOnline() bool {
 	return e.State == api.EntryStateOnline
 }
 
-func (e *Entry) SetOnline() {
-	e.State = api.EntryStateOnline
+func (e *Entry) SetOnline() api.EntryState {
+	return api.EntryStateOnline
 }

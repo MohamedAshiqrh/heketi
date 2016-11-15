@@ -193,7 +193,7 @@ func (a *App) VolumeInfo(w http.ResponseWriter, r *http.Request) {
 	err := a.db.View(func(tx *bolt.Tx) error {
 		entry, err := NewVolumeEntryFromId(tx, id)
 		if err == ErrNotFound {
-			http.Error(w, "Id not found", http.StatusNotFound)
+			http.Error(w, "Volume: Id not found", http.StatusNotFound)
 			return err
 		} else if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

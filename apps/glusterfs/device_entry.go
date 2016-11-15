@@ -46,7 +46,7 @@ func DeviceList(tx *bolt.Tx) ([]string, error) {
 func NewDeviceEntry() *DeviceEntry {
 	entry := &DeviceEntry{}
 	entry.Bricks = make(sort.StringSlice, 0)
-	entry.SetOnline()
+	entry.State = entry.SetOnline()
 
 	// Default to 4096KB
 	entry.ExtentSize = 4096
@@ -267,11 +267,13 @@ func (d *DeviceEntry) NewInfoResponse(tx *bolt.Tx) (*api.DeviceInfoResponse, err
 
 	// Add each drive information
 	for _, id := range d.Bricks {
+		logger.Info("rtalur Checking Brick in NewInfoRes ID: %v", id)
 		brick, err := NewBrickEntryFromId(tx, id)
 		if err != nil {
 			return nil, err
 		}
 
+		logger.Info("rtalur Get Brick info NewInfoRes ID: %v", info.Id)
 		brickinfo, err := brick.NewInfoResponse(tx)
 		if err != nil {
 			return nil, err
@@ -279,6 +281,35 @@ func (d *DeviceEntry) NewInfoResponse(tx *bolt.Tx) (*api.DeviceInfoResponse, err
 		info.Bricks = append(info.Bricks, *brickinfo)
 	}
 
+	return info, nil
+}
+
+func (d *DeviceEntry) NewInfoResponseNode(tx *bolt.Tx) (*api.DeviceInfoResponse, error) {
+
+	godbc.Require(tx != nil)
+
+	info := &api.DeviceInfoResponse{}
+	info.Id = d.Info.Id
+	info.Name = d.Info.Name
+	info.Storage = d.Info.Storage
+	info.State = d.State
+	info.Bricks = make([]api.BrickInfo, 0)
+
+	logger.Info("mashiq Device info NewInfoResNode ID: %v", info.Id)
+	/*	// Add each drive information
+		for _, id := range d.Bricks {
+			brick, err := NewBrickEntryFromId(tx, id)
+			if err != nil {
+				return nil, err
+			}
+
+			brickinfo, err := brick.NewInfoResponse(tx)
+			if err != nil {
+				return nil, err
+			}
+			info.Bricks = append(info.Bricks, *brickinfo)
+		}
+	*/
 	return info, nil
 }
 

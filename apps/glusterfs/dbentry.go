@@ -124,6 +124,7 @@ func EntryDelete(tx *bolt.Tx, entry DbEntry, key string) error {
 func EntryLoad(tx *bolt.Tx, entry DbEntry, key string) error {
 	godbc.Require(tx != nil)
 	godbc.Require(len(key) > 0)
+	logger.Info("rtalur Entered EntryLoad Key %v", key)
 
 	b := tx.Bucket([]byte(entry.BucketName()))
 	if b == nil {
@@ -135,6 +136,7 @@ func EntryLoad(tx *bolt.Tx, entry DbEntry, key string) error {
 	val := b.Get([]byte(key))
 	if val == nil {
 		return ErrNotFound
+
 	}
 
 	err := entry.Unmarshal(val)

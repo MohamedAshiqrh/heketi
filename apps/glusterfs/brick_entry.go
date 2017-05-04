@@ -284,3 +284,25 @@ func addVolumeIdInBrickEntry(tx *bolt.Tx) error {
 	}
 	return nil
 }
+
+func BrickEntryClean(tx *bolt.Tx) error {
+	bricks, err := BrickList(tx)
+	if err != nil {
+		return err
+	}
+
+	for _, brick := range bricks {
+		brickEntry, err := NewBrickEntryFromId(tx, brick)
+		if err != nil {
+			return err
+		}
+
+		_, err = NewVolumeEntryFromId(tx, brickEntry.Info.VolumeId)
+		if err != nil {
+			if err == ErrNotFound {
+				logger.Info("Brick [%v] is stale should be removed", brickEntry.Id())
+			}
+		}
+	}
+	return nil
+}

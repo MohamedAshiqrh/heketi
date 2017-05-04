@@ -197,6 +197,25 @@ func (a *App) setLogLevel(level string) {
 	}
 }
 
+// DB inconsistent state, Verify and Handle
+
+func (a *App) DBClean(tx *bolt.Tx) error {
+
+	err := VolumeEntryClean(tx)
+	if err != nil {
+		logger.LogError("Failed to upgrade db for cluster entries")
+		return err
+	}
+
+	err = BrickEntryClean(tx)
+	if err != nil {
+		logger.LogError("Failed to upgrade db for cluster entries")
+		return err
+	}
+
+	return nil
+}
+
 // Upgrade Path to update all the values for new API entries
 func (a *App) Upgrade(tx *bolt.Tx) error {
 

@@ -589,3 +589,54 @@ func (v *VolumeEntry) checkBricksCanBeDestroyed(db *bolt.DB,
 func VolumeEntryUpgrade(tx *bolt.Tx) error {
 	return nil
 }
+
+func VolumeEntryClean(tx *bolt.Tx) error {
+	var handleVolumes []string
+	volumes, err := VolumeList(tx)
+	if err != nil {
+		return err
+	}
+
+	for _, volume := range volumes {
+		volumeEntry, err := NewVolumeEntryFromId(tx, volume)
+		if err != nil {
+			return err
+		}
+
+		for _, brick := range volumeEntry.Bricks {
+			brickEntry, err := NewBrickEntryFromId(tx, brick)
+			if err != nil {
+				if err != ErrNotFound {
+					return err
+				}
+				logger.Info("brick Id not found for brick [%v] in volume [%v]", brick, volume)
+				handleVolumes = append(handleVolumes, volume)
+			}
+
+		}
+
+	}
+	logger.Info("Volume list with bricks not found [%v]", handleVolumes)
+	for _, volume := range handleVolumes {
+		volumeEntry, err := NewVolumeEntryFromId(tx, volume)
+		bricks, err := BrickList(tx)
+		for _, brick := range bricks {
+			found := false
+			brickEntry, err := NewBrickEntryFromId(tx, brick)
+			if brickEntry.Info.VolumeId == volumeEntry.Info.Id {
+				for _, brickInVolumeEntry := range volumeEntry.Bricks {
+					if brickInVolumeEntry == brickEntry.Info.Id {
+						found = true
+					}
+				}
+				if !found {
+					logger.Info("Stale Brick [%v] is found for the volume [%v]", brickEntry.Info.Id, volumeEntry.Info.Id)
+
+				}
+			}
+
+		}
+
+	}
+	return nil
+}

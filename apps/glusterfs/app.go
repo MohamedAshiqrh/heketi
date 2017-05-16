@@ -150,6 +150,12 @@ func NewApp(configIo io.Reader) *App {
 				return err
 			}
 
+			err = app.DBClean(tx)
+			if err != nil {
+				logger.LogError("Unable to clean the DB")
+				return err
+			}
+
 			return nil
 
 		})

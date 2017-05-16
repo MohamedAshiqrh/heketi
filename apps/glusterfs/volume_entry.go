@@ -609,20 +609,27 @@ func VolumeEntryClean(tx *bolt.Tx) error {
 				if err != ErrNotFound {
 					return err
 				}
-				logger.Info("brick Id not found for brick [%v] in volume [%v]", brick, volume)
+				logger.Info("brick Id not found for brick [%v] in volume [%v]", brickEntry.Info.Id, volume)
 				handleVolumes = append(handleVolumes, volume)
 			}
-
 		}
 
 	}
 	logger.Info("Volume list with bricks not found [%v]", handleVolumes)
 	for _, volume := range handleVolumes {
 		volumeEntry, err := NewVolumeEntryFromId(tx, volume)
+		if err != nil {
+			return err
+		}
+
 		bricks, err := BrickList(tx)
 		for _, brick := range bricks {
 			found := false
 			brickEntry, err := NewBrickEntryFromId(tx, brick)
+			if err != nil {
+				return err
+			}
+
 			if brickEntry.Info.VolumeId == volumeEntry.Info.Id {
 				for _, brickInVolumeEntry := range volumeEntry.Bricks {
 					if brickInVolumeEntry == brickEntry.Info.Id {

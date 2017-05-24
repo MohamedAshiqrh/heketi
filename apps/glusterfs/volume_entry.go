@@ -38,10 +38,9 @@ const (
 )
 
 type VolumeEntry struct {
-	Info         api.VolumeInfo
-	Bricks       sort.StringSlice
-	Durability   VolumeDurability
-	gidRequested int64
+	Info       api.VolumeInfo
+	Bricks     sort.StringSlice
+	Durability VolumeDurability
 }
 
 func VolumeList(tx *bolt.Tx) ([]string, error) {
@@ -68,7 +67,7 @@ func NewVolumeEntryFromRequest(req *api.VolumeCreateRequest) *VolumeEntry {
 	godbc.Require(req != nil)
 
 	vol := NewVolumeEntry()
-	vol.gidRequested = req.Gid
+	vol.Info.Gid = req.Gid
 	vol.Info.Id = utils.GenUUID()
 	vol.Info.Durability = req.Durability
 	vol.Info.Snapshot = req.Snapshot
@@ -511,7 +510,6 @@ func (v *VolumeEntry) Expand(db *bolt.DB,
 	// Create bricks
 	err = CreateBricks(db, executor, brick_entries)
 	if err != nil {
-		logger.Err(err)
 		return err
 	}
 
@@ -585,4 +583,8 @@ func (v *VolumeEntry) checkBricksCanBeDestroyed(db *bolt.DB,
 		logger.Err(err)
 	}
 	return err
+}
+
+func VolumeEntryUpgrade(tx *bolt.Tx) error {
+	return nil
 }

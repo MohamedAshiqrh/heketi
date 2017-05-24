@@ -11,23 +11,26 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/heketi/heketi/apps"
 	"github.com/heketi/heketi/apps/glusterfs"
 	"github.com/heketi/heketi/middleware"
+	"github.com/spf13/cobra"
 	"github.com/urfave/negroni"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"k8s.io/kubernetes/pkg/client/restclient"
 )
 
 type Config struct {
-	Port        string                   `json:"port"`
-	AuthEnabled bool                     `json:"use_auth"`
-	JwtConfig   middleware.JwtAuthConfig `json:"jwt"`
+	Port                 string                   `json:"port"`
+	AuthEnabled          bool                     `json:"use_auth"`
+	JwtConfig            middleware.JwtAuthConfig `json:"jwt"`
+	BackupDbToKubeSecret bool                     `json:"backup_db_to_kube_secret"`
 }
 
 var (
@@ -36,13 +39,30 @@ var (
 	showVersion    bool
 )
 
-func init() {
-	flag.StringVar(&configfile, "config", "", "Configuration file")
-	flag.BoolVar(&showVersion, "version", false, "Show version")
+var RootCmd = &cobra.Command{
+	Use:     "heketi",
+	Short:   "Heketi is a restful volume management server",
+	Long:    "Heketi is a restful volume management server",
+	Example: "heketi --config=/config/file/path/",
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Printf("Heketi %v\n", HEKETI_VERSION)
+		if !showVersion {
+			// Check configuration file was given
+			if configfile == "" {
+				fmt.Fprintln(os.Stderr, "Please provide configuration file")
+				os.Exit(1)
+			}
+		} else {
+			// Quit here if all we needed to do was show version
+			os.Exit(0)
+		}
+	},
 }
 
-func printVersion() {
-	fmt.Printf("Heketi %v\n", HEKETI_VERSION)
+func init() {
+	RootCmd.Flags().StringVar(&configfile, "config", "", "Configuration file")
+	RootCmd.Flags().BoolVarP(&showVersion, "version", "v", false, "Show version")
+	RootCmd.SilenceUsage = true
 }
 
 func setWithEnvVariables(options *Config) {
@@ -65,21 +85,22 @@ func setWithEnvVariables(options *Config) {
 	if "" != env {
 		options.Port = env
 	}
+
+	env = os.Getenv("HEKETI_BACKUP_DB_TO_KUBE_SECRET")
+	if "" != env {
+		options.BackupDbToKubeSecret = true
+	}
 }
 
 func main() {
-	flag.Parse()
-	printVersion()
-
-	// Quit here if all we needed to do was show version
-	if showVersion {
-		return
+	if err := RootCmd.Execute(); err != nil {
+		fmt.Println(err)
+		os.Exit(-1)
 	}
 
-	// Check configuration file was given
+	// Quit here if all we needed to do was show usage/help
 	if configfile == "" {
-		fmt.Fprintln(os.Stderr, "Please provide configuration file")
-		os.Exit(1)
+		return
 	}
 
 	// Read configuration
@@ -103,6 +124,11 @@ func main() {
 
 	// Substitue values using any set environment variables
 	setWithEnvVariables(&options)
+
+	// Use negroni to add middleware.  Here we add two
+	// middlewares: Recovery and Logger, which come with
+	// Negroni
+	n := negroni.New(negroni.NewRecovery(), negroni.NewLogger())
 
 	// Go to the beginning of the file when we pass it
 	// to the application
@@ -135,11 +161,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Use negroni to add middleware.  Here we add two
-	// middlewares: Recovery and Logger, which come with
-	// Negroni
-	n := negroni.New(negroni.NewRecovery(), negroni.NewLogger())
-
 	// Load authorization JWT middleware
 	if options.AuthEnabled {
 		jwtauth := middleware.NewJwtAuth(&options.JwtConfig)
@@ -155,6 +176,15 @@ func main() {
 		n.UseFunc(app.Auth)
 
 		fmt.Println("Authorization loaded")
+	}
+
+	if options.BackupDbToKubeSecret {
+		// Check if running in a Kubernetes environment
+		_, err = restclient.InClusterConfig()
+		if err == nil {
+			// Load middleware to backup database
+			n.UseFunc(glusterfsApp.BackupToKubernetesSecret)
+		}
 	}
 
 	// Add all endpoints after the middleware was added

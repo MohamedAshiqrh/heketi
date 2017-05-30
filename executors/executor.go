@@ -64,9 +64,10 @@ type BrickInfo struct {
 }
 
 type VolumeRequest struct {
-	Bricks []BrickInfo
-	Name   string
-	Type   DurabilityType
+	Bricks               []BrickInfo
+	Name                 string
+	Type                 DurabilityType
+	GlusterVolumeOptions []string
 
 	// Dispersion
 	Data       int

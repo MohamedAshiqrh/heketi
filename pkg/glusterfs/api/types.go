@@ -114,6 +114,7 @@ type Cluster struct {
 	Nodes   []NodeInfoResponse   `json:"nodes"`
 	Id      string               `json:"id"`
 	Block   bool                 `json:"block"`
+	File    bool                 `json:"file"`
 }
 
 type TopologyInfoResponse struct {
@@ -122,6 +123,7 @@ type TopologyInfoResponse struct {
 
 type ClusterCreateRequest struct {
 	Block bool `json:"block"`
+	File  bool `json:"file"`
 }
 
 type ClusterInfoResponse struct {

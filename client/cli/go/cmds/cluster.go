@@ -21,7 +21,8 @@ import (
 )
 
 var (
-	cl_block bool
+	cl_noblock bool
+	cl_nofile bool
 )
 
 func init() {
@@ -31,12 +32,10 @@ func init() {
 	clusterCommand.AddCommand(clusterListCommand)
 	clusterCommand.AddCommand(clusterInfoCommand)
 
-	clusterCreateCommand.Flags().BoolVar(&cl_block, "block", false,
-		"\n\tOptional: Create a cluster that is intended to only host"+
-		"\n\tblock-hosting volumes."+
-		"\n\tNote: If there is at least one cluster with the 'block' flag,"+
-		"\n\tthen only clusters with the 'block' flag will be used to for"+
-		"\n\tcreation of block-hosting volumes.")
+	clusterCreateCommand.Flags().BoolVar(&cl_noblock, "noblock", false,
+		"\n\tOptional: Create a cluster that can *not* host block-hosting volumes.")
+	clusterCreateCommand.Flags().BoolVar(&cl_nofile, "nofile", false,
+		"\n\tOptional: Create a cluster that can *not* host regular file volumes.")
 
 	clusterCreateCommand.SilenceUsage = true
 	clusterDeleteCommand.SilenceUsage = true
@@ -57,7 +56,8 @@ var clusterCreateCommand = &cobra.Command{
 	Example: "  $ heketi-cli cluster create",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		req := &api.ClusterCreateRequest{}
-		req.Block = cl_block
+		req.Block = !cl_noblock
+		req.File = !cl_nofile
 
 		// Create a client to talk to Heketi
 		heketi := client.NewClient(options.Url, options.User, options.Key)
@@ -146,6 +146,7 @@ var clusterInfoCommand = &cobra.Command{
 			fmt.Fprintf(stdout, "Nodes:\n%v", strings.Join(info.Nodes, "\n"))
 			fmt.Fprintf(stdout, "\nVolumes:\n%v", strings.Join(info.Volumes, "\n"))
 			fmt.Fprintf(stdout, "\nBlock: %v\n", info.Block)
+			fmt.Fprintf(stdout, "\nFile: %v\n", info.File)
 		}
 
 		return nil
@@ -181,12 +182,18 @@ var clusterListCommand = &cobra.Command{
 					return err
 				}
 
-				blockstr := ""
+				usagestr := ""
+				if cluster.File {
+					usagestr = "[file]"
+				}
 				if cluster.Block {
-					blockstr = " [block]"
+					usagestr = usagestr + "[block]"
+				}
+				if usagestr == "" {
+					usagestr = "[]"
 				}
 
-				fmt.Fprintf(stdout, "Id:%v%v\n", clusterid, blockstr)
+				fmt.Fprintf(stdout, "Id:%v %v\n", clusterid, usagestr)
 			}
 		}
 

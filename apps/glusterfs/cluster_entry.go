@@ -38,7 +38,8 @@ func NewClusterEntry() *ClusterEntry {
 	entry := &ClusterEntry{}
 	entry.Info.Nodes = make(sort.StringSlice, 0)
 	entry.Info.Volumes = make(sort.StringSlice, 0)
-	entry.Info.Block = false
+	entry.Info.Block = true
+	entry.Info.File = true
 
 	return entry
 }
@@ -49,6 +50,7 @@ func NewClusterEntryFromRequest(req *api.ClusterCreateRequest) *ClusterEntry {
 	entry := NewClusterEntry()
 	entry.Info.Id = utils.GenUUID()
 	entry.Info.Block = req.Block
+	entry.Info.File = req.File
 
 	return entry
 }

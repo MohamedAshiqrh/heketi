@@ -159,6 +159,12 @@ var volumeCreateCommand = &cobra.Command{
 		req.Durability.Disperse.Redundancy = redundancy
 		req.Block = block
 
+		if block {
+			fmt.Fprintf(stderr, "client/cli: block is set\n")
+		} else {
+			fmt.Fprintf(stderr, "client/cli: block is not set\n")
+		}
+
 		// Set group id if specified
 		if gid != 0 {
 			req.Gid = gid

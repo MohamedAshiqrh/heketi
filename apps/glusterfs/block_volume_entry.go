@@ -316,6 +316,8 @@ func (v *BlockVolumeEntry) Create(db *bolt.DB,
 		}
 		logger.Debug("Loaded volume info from DB: [%+v]", volume)
 
+		volume.Info.BlockInfo.FreeSize = volume.Info.BlockInfo.FreeSize - v.Info.Size
+
 		volume.BlockVolumeAdd(v.Info.Id)
 		logger.Debug("Storing volume info to DB: [%+v]", volume)
 		err = volume.Save(tx)

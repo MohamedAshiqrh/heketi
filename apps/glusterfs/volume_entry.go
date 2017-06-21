@@ -266,7 +266,7 @@ func (v *VolumeEntry) Create(db *bolt.DB,
 					candidateClusters = append(candidateClusters, clusterId)
 				}
 			} else {
-				if !c.Info.Block {
+				if c.Info.File {
 					candidateClusters = append(candidateClusters, clusterId)
 				}
 			}
@@ -276,9 +276,7 @@ func (v *VolumeEntry) Create(db *bolt.DB,
 			return err
 		}
 	}
-	if !v.Info.Block || candidateClusters != nil {
-		possibleClusters = candidateClusters
-	}
+	possibleClusters = candidateClusters
 
 	// Check we have clusters
 	if len(possibleClusters) == 0 {

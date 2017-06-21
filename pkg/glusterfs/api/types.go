@@ -124,6 +124,7 @@ type ClusterInfoResponse struct {
 	Nodes   sort.StringSlice `json:"nodes"`
 	Volumes sort.StringSlice `json:"volumes"`
 	Block   bool             `json:"block"`
+	File    bool             `json:"file"`
 }
 
 type ClusterListResponse struct {

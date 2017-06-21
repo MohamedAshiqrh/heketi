@@ -37,6 +37,7 @@ var (
 	kubePvFile     string
 	kubePvEndpoint string
 	kubePv         bool
+	block          bool
 )
 
 func init() {
@@ -356,10 +357,15 @@ var volumeListCommand = &cobra.Command{
 					return err
 				}
 
-				fmt.Fprintf(stdout, "Id:%-35v Cluster:%-35v Name:%v\n",
+				blockstr := ""
+				if volume.Block {
+					blockstr = " [block]"
+				}
+				fmt.Fprintf(stdout, "Id:%-35v Cluster:%-35v Name:%v%v\n",
 					id,
 					volume.Cluster,
-					volume.Name)
+					volume.Name,
+					blockstr)
 			}
 		}
 

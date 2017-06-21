@@ -153,7 +153,8 @@ type VolumeCreateRequest struct {
 	Name       string               `json:"name"`
 	Durability VolumeDurabilityInfo `json:"durability,omitempty"`
 	Gid        int64                `json:"gid,omitempty"`
-	Snapshot   struct {
+
+	Snapshot struct {
 		Enable bool    `json:"enable"`
 		Factor float32 `json:"factor"`
 	} `json:"snapshot"`

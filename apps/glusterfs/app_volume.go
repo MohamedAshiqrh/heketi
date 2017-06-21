@@ -35,6 +35,12 @@ func (a *App) VolumeCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if msg.Block {
+		logger.Debug("app_volume.VolumeCreate: block is set")
+	} else {
+		logger.Debug("app_volume.VolumeCreate: block is not set")
+	}
+
 	switch {
 	case msg.Gid < 0:
 		http.Error(w, "Bad group id less than zero", http.StatusBadRequest)

@@ -163,6 +163,7 @@ type VolumeCreateRequest struct {
 	Name       string               `json:"name"`
 	Durability VolumeDurabilityInfo `json:"durability,omitempty"`
 	Gid        int64                `json:"gid,omitempty"`
+	Block      bool                 `json:"block,omitempty"`
 
 	Snapshot struct {
 		Enable bool    `json:"enable"`
@@ -181,6 +182,10 @@ type VolumeInfo struct {
 			Options    map[string]string `json:"options"`
 		} `json:"glusterfs"`
 	} `json:"mount"`
+	BlockInfo struct {
+		FreeSize     int              `json:"freesize,omitempty"`
+		BlockVolumes sort.StringSlice `json:"blockvolume,omitempty"`
+	} `json:"blockinfo,omitempty"`
 }
 
 type VolumeInfoResponse struct {
@@ -215,6 +220,9 @@ func (v *VolumeInfoResponse) String() string {
 		"Cluster Id: %v\n"+
 		"Mount: %v\n"+
 		"Mount Options: backup-volfile-servers=%v\n"+
+		"Block: %v\n"+
+		"Free Size: %v\n"+
+		"Block Volumes: %v\n"+
 		"Durability Type: %v\n",
 		v.Name,
 		v.Size,
@@ -222,6 +230,9 @@ func (v *VolumeInfoResponse) String() string {
 		v.Cluster,
 		v.Mount.GlusterFS.MountPoint,
 		v.Mount.GlusterFS.Options["backup-volfile-servers"],
+		v.Block,
+		v.BlockInfo.FreeSize,
+		v.BlockInfo.BlockVolumes,
 		v.Durability.Type)
 
 	switch v.Durability.Type {

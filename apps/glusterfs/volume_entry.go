@@ -72,6 +72,11 @@ func NewVolumeEntryFromRequest(req *api.VolumeCreateRequest) *VolumeEntry {
 	vol.Info.Durability = req.Durability
 	vol.Info.Snapshot = req.Snapshot
 	vol.Info.Size = req.Size
+	vol.Info.Block = req.Block
+
+	if vol.Info.Block {
+		vol.Info.BlockInfo.FreeSize = req.Size
+	}
 
 	// Set default durability values
 	durability := vol.Info.Durability.Type
@@ -159,6 +164,8 @@ func (v *VolumeEntry) NewInfoResponse(tx *bolt.Tx) (*api.VolumeInfoResponse, err
 	info.Size = v.Info.Size
 	info.Durability = v.Info.Durability
 	info.Name = v.Info.Name
+	info.Block = v.Info.Block
+	info.BlockInfo = v.Info.BlockInfo
 
 	for _, brickid := range v.BricksIds() {
 		brick, err := NewBrickEntryFromId(tx, brickid)
@@ -239,6 +246,28 @@ func (v *VolumeEntry) Create(db *bolt.DB,
 	} else {
 		possibleClusters = v.Info.Clusters
 	}
+
+	//
+	// Only consider those clusters that are not equipped
+	// with the Block flag.
+	//
+	nonBlockClusters := []string{}
+	for _, clusterId := range possibleClusters {
+		err := db.View(func(tx *bolt.Tx) error {
+			c, err := NewClusterEntryFromId(tx, clusterId)
+			if err != nil {
+				return err
+			}
+			if !c.Info.Block {
+				nonBlockClusters = append(nonBlockClusters, clusterId)
+			}
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+	}
+	possibleClusters = nonBlockClusters
 
 	// Check we have clusters
 	if len(possibleClusters) == 0 {
@@ -365,6 +394,9 @@ func (v *VolumeEntry) Create(db *bolt.DB,
 		}
 
 		// Save volume information
+		if v.Info.Block {
+			v.Info.BlockInfo.FreeSize = v.Info.Size
+		}
 		err = v.Save(tx)
 		if err != nil {
 			return err
@@ -586,4 +618,13 @@ func (v *VolumeEntry) checkBricksCanBeDestroyed(db *bolt.DB,
 
 func VolumeEntryUpgrade(tx *bolt.Tx) error {
 	return nil
+}
+
+func (v *VolumeEntry) BlockVolumeAdd(id string) {
+	v.Info.BlockInfo.BlockVolumes = append(v.Info.BlockInfo.BlockVolumes, id)
+	v.Info.BlockInfo.BlockVolumes.Sort()
+}
+
+func (v *VolumeEntry) BlockVolumeDelete(id string) {
+	v.Info.BlockInfo.BlockVolumes = utils.SortedStringsDelete(v.Info.BlockInfo.BlockVolumes, id)
 }

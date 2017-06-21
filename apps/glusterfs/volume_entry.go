@@ -247,6 +247,12 @@ func (v *VolumeEntry) Create(db *bolt.DB,
 		possibleClusters = v.Info.Clusters
 	}
 
+	if v.Info.Block {
+		logger.Debug("volume.Create: Block is set in the request.")
+	} else {
+		logger.Debug("volume.Create: Block is not set in the request.")
+	}
+
 	//
 	// If the request carries the Block flag, consider only
 	// those clusters that carry the Block flag if there are

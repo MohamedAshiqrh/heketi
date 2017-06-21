@@ -22,7 +22,7 @@ import (
 
 var (
 	cl_noblock bool
-	cl_nofile bool
+	cl_nofile  bool
 )
 
 func init() {

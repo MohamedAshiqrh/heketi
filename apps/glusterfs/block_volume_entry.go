@@ -74,6 +74,7 @@ func NewBlockVolumeEntryFromRequest(req *api.BlockVolumeCreateRequest) *BlockVol
 	vol := NewBlockVolumeEntry()
 	vol.Info.Id = utils.GenUUID()
 	vol.Info.Size = req.Size
+	vol.Info.Auth = req.Auth
 
 	if req.Name == "" {
 		vol.Info.Name = "blockvol_" + vol.Info.Id

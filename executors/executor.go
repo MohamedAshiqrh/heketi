@@ -137,6 +137,7 @@ type BlockVolumeRequest struct {
 	GlusterNode       string
 	Hacount           int
 	BlockHosts        []string
+	Auth              bool
 }
 
 type BlockVolumeInfo struct {
@@ -147,4 +148,6 @@ type BlockVolumeInfo struct {
 	Hacount           int
 	BlockHosts        []string
 	Iqn               string
+	Username          string
+	Password          string
 }

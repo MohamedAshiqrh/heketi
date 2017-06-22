@@ -13,7 +13,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-//	"os"
+	//	"os"
 	"strings"
 
 	client "github.com/heketi/heketi/client/api/go-client"
@@ -22,10 +22,10 @@ import (
 )
 
 var (
-	bv_size           int
-	bv_volname        string
-//	bv_gid            int64
-	bv_clusters       string
+	bv_size     int
+	bv_volname  string
+	bv_auth     bool
+	bv_clusters string
 )
 
 func init() {
@@ -37,8 +37,8 @@ func init() {
 
 	blockVolumeCreateCommand.Flags().IntVar(&bv_size, "size", -1,
 		"\n\tSize of volume in GB")
-//	blockVolumeCreateCommand.Flags().Int64Var(&gid, "gid", 0,
-//		"\n\tOptional: Initialize volume with the specified group id")
+	blockVolumeCreateCommand.Flags().BoolVar(&bv_auth, "auth", false,
+		"\n\tOptional: Enable Authentication for block volume access")
 	blockVolumeCreateCommand.Flags().StringVar(&bv_volname, "name", "",
 		"\n\tOptional: Name of volume. Only set if really necessary")
 	blockVolumeCreateCommand.Flags().StringVar(&bv_clusters, "clusters", "",
@@ -69,24 +69,22 @@ var blockVolumeCreateCommand = &cobra.Command{
   * Create a 100GB block volume specifying two specific clusters:
       $ heketi-cli blockvolume create --size=100 \
         --clusters=0995098e1284ddccb46c7752d142c832,60d46d518074b13a04ce1022c8c7193c
+
+  * Create a 100GB block volume specifying two specific clusters auth enabled:
+      $ heketi-cli blockvolume create --size=100 --auth \
+        --clusters=0995098e1284ddccb46c7752d142c832,60d46d518074b13a04ce1022c8c7193c
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if bv_size == -1 {
 			return errors.New("Missing volume size")
 		}
 
-		var clusters_ []string
-		if bv_clusters != "" {
-			clusters_ = strings.Split(clusters, ",")
-		}
-
 		req := &api.BlockVolumeCreateRequest{}
 		req.Size = bv_size
-		req.Clusters = clusters_
-
-//		if gid != 0 {
-//			req.Gid = gid
-//		}
+		req.Auth = bv_auth
+		if bv_clusters != "" {
+			req.Clusters = strings.Split(clusters, ",")
+		}
 
 		if bv_volname != "" {
 			req.Name = bv_volname

@@ -207,15 +207,18 @@ type BlockVolumeCreateRequest struct {
 	Clusters []string `json:"clusters,omitempty"`
 	Name     string   `json:"name"`
 	Hacount  int      `json:"hacount,omitempty"`
+	Auth     bool     `json:"auth",omitempty`
 }
 
 type BlockVolumeInfo struct {
 	BlockVolumeCreateRequest
 	Id          string `json:"id"`
 	BlockVolume struct {
-		Hosts []string `json:"hosts"`
-		Iqn   string   `json:"iqn"`
-		Lun   int      `json:"lun"`
+		Hosts    []string `json:"hosts"`
+		Iqn      string   `json:"iqn"`
+		Lun      int      `json:"lun"`
+		Username string   `json:"username"`
+		Password string   `json:"password"`
 		/*
 			Options   map[string]string `json:"options"`  // needed?...
 		*/
@@ -319,6 +322,8 @@ func (v *BlockVolumeInfoResponse) String() string {
 		"IQN: %v\n"+
 		"LUN: %v\n"+
 		"Hacount: %v\n"+
+		"Username: %v\n"+
+		"Password: %v\n"+
 		"Block Hosting Volume: %v\n",
 		v.Name,
 		v.Size,
@@ -328,6 +333,8 @@ func (v *BlockVolumeInfoResponse) String() string {
 		v.BlockVolume.Iqn,
 		v.BlockVolume.Lun,
 		v.Hacount,
+		v.BlockVolume.Username,
+		v.BlockVolume.Password,
 		v.BlockHostingVolume)
 
 	/*

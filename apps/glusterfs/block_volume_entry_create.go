@@ -22,7 +22,7 @@ func (v *BlockVolumeEntry) createBlockVolume(db *bolt.DB,
 	godbc.Require(blockHostingVolumeId != "")
 
 	vr, host, err := v.createBlockVolumeRequest(db, executor,
-						blockHostingVolumeId)
+		blockHostingVolumeId)
 	if err != nil {
 		return err
 	}
@@ -35,6 +35,8 @@ func (v *BlockVolumeEntry) createBlockVolume(db *bolt.DB,
 	v.Info.BlockVolume.Iqn = blockVolumeInfo.Iqn
 	v.Info.BlockVolume.Hosts = blockVolumeInfo.BlockHosts
 	v.Info.BlockVolume.Lun = 0
+	v.Info.BlockVolume.Username = blockVolumeInfo.Username
+	v.Info.BlockVolume.Password = blockVolumeInfo.Password
 
 	return nil
 }
@@ -81,6 +83,7 @@ func (v *BlockVolumeEntry) createBlockVolumeRequest(db *bolt.DB,
 	vr.GlusterVolumeName = blockHostingVolumeName
 	vr.Hacount = v.Info.Hacount
 	vr.Size = v.Info.Size
+	vr.Auth = v.Info.Auth
 
 	return vr, executorhost, nil
 }

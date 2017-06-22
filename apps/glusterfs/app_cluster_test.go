@@ -177,7 +177,7 @@ func TestClusterInfo(t *testing.T) {
 	// Create a new ClusterInfo
 	entry := NewClusterEntry()
 	entry.Info.Id = "123"
-	entry.Info.Block = true
+	entry.Info.Block = false
 	entry.Info.File = true
 	for _, node := range []string{"a1", "a2", "a3"} {
 		entry.NodeAdd(node)
@@ -211,6 +211,7 @@ func TestClusterInfo(t *testing.T) {
 	// Now that we have some data in the database, we can
 	// make a request for the clutser list
 	r, err := http.Get(ts.URL + "/clusters/" + "123")
+	fmt.Println("%v", r)
 	tests.Assert(t, r.StatusCode == http.StatusOK)
 	tests.Assert(t, err == nil)
 	tests.Assert(t, r.Header.Get("Content-Type") == "application/json; charset=UTF-8")
@@ -221,7 +222,7 @@ func TestClusterInfo(t *testing.T) {
 	tests.Assert(t, err == nil)
 
 	// Check values are equal
-	fmt.Println("%v", msg)
+	fmt.Println("%v  %v", msg, entry)
 	tests.Assert(t, entry.Info.Id == msg.Id)
 	tests.Assert(t, entry.Info.Volumes[0] == msg.Volumes[0])
 	tests.Assert(t, entry.Info.Volumes[1] == msg.Volumes[1])

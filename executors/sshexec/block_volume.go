@@ -26,13 +26,22 @@ func (s *SshExecutor) BlockVolumeCreate(host string,
 	godbc.Require(volume.Name != "")
 
 	type CliOutput struct {
-		Iqn    string   `json:"IQN"`
-		Portal []string `json:"PORTAL(S)"`
-		Result string   `json:"RESULT"`
+		Iqn      string   `json:"IQN"`
+		Username string   `json:"USERNAME"`
+		Password string   `json:"PASSWORD"`
+		Portal   []string `json:"PORTAL(S)"`
+		Result   string   `json:"RESULT"`
 	}
 
-	cmd := fmt.Sprintf("gluster-block create %v/%v  ha %v  %v %v --json",
-		volume.GlusterVolumeName, volume.Name, volume.Hacount, strings.Join(volume.BlockHosts, ","), volume.Size)
+	var auth_set string
+	if volume.Auth {
+		auth_set = "enable"
+	} else {
+		auth_set = "disable"
+	}
+
+	cmd := fmt.Sprintf("gluster-block create %v/%v  ha %v auth %v  %v %v --json",
+		volume.GlusterVolumeName, volume.Name, volume.Hacount, auth_set, strings.Join(volume.BlockHosts, ","), volume.Size)
 
 	// Initialize the commands with the create command
 	commands := []string{cmd}
@@ -59,6 +68,8 @@ func (s *SshExecutor) BlockVolumeCreate(host string,
 	blockVolumeInfo.Iqn = blockVolumeCreate.Iqn
 	blockVolumeInfo.Name = volume.Name
 	blockVolumeInfo.Size = volume.Size
+	blockVolumeInfo.Username = blockVolumeCreate.Username
+	blockVolumeInfo.Password = blockVolumeCreate.Password
 
 	return &blockVolumeInfo, nil
 }

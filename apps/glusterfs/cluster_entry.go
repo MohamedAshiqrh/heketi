@@ -123,6 +123,9 @@ func (c *ClusterEntry) Unmarshal(buffer []byte) error {
 	if c.Info.Volumes == nil {
 		c.Info.Volumes = make(sort.StringSlice, 0)
 	}
+	if c.Info.BlockVolumes == nil {
+		c.Info.BlockVolumes = make(sort.StringSlice, 0)
+	}
 
 	return nil
 }

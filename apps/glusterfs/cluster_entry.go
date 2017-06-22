@@ -38,8 +38,8 @@ func NewClusterEntry() *ClusterEntry {
 	entry := &ClusterEntry{}
 	entry.Info.Nodes = make(sort.StringSlice, 0)
 	entry.Info.Volumes = make(sort.StringSlice, 0)
-	entry.Info.Block = true
-	entry.Info.File = true
+	entry.Info.Block = false
+	entry.Info.File = false
 
 	return entry
 }

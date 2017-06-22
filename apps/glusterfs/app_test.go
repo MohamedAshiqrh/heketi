@@ -241,7 +241,7 @@ func TestAppBlockSettings(t *testing.T) {
 
 	blockauto, blocksize := CreateBlockHostingVolumes, NewBlockHostingVolumeSize
 	defer func() {
-		CreateBlockHostingVolumes, NewBlockHostingVolumeSize := blockauto, blocksize
+		CreateBlockHostingVolumes, NewBlockHostingVolumeSize = blockauto, blocksize
 	}()
 
 	app := NewApp(bytes.NewReader(data))

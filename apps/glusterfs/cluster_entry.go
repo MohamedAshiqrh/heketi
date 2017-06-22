@@ -112,6 +112,9 @@ func (c *ClusterEntry) Marshal() ([]byte, error) {
 	enc := gob.NewEncoder(&buffer)
 	err := enc.Encode(*c)
 
+	logger.Debug("c.Marshal: Block: %v", c.Info.Block)
+	logger.Debug("c.Marshal: File:  %v", c.Info.File)
+
 	return buffer.Bytes(), err
 }
 
@@ -129,6 +132,9 @@ func (c *ClusterEntry) Unmarshal(buffer []byte) error {
 	if c.Info.Volumes == nil {
 		c.Info.Volumes = make(sort.StringSlice, 0)
 	}
+
+	logger.Debug("c.UnMarshal: Block: %v", c.Info.Block)
+	logger.Debug("c.UnMarshal: File:  %v", c.Info.File)
 
 	return nil
 }

@@ -31,8 +31,8 @@ func (a *App) ClusterCreate(w http.ResponseWriter, r *http.Request) {
 	// Create a new ClusterInfo
 	entry := NewClusterEntryFromRequest(&msg)
 
-	logger.Debug("app.ClusterCreate: Block: %v", msg.Block)
-	logger.Debug("app.ClusterCreate: File:  %v", msg.File)
+	logger.Debug("app.ClusterCreate: Block: %v", entry.Info.Block)
+	logger.Debug("app.ClusterCreate: File:  %v", entry.Info.File)
 
 	// Add cluster to db
 	err = a.db.Update(func(tx *bolt.Tx) error {

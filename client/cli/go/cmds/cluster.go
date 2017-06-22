@@ -16,7 +16,13 @@ import (
 	"strings"
 
 	"github.com/heketi/heketi/client/api/go-client"
+	"github.com/heketi/heketi/pkg/glusterfs/api"
 	"github.com/spf13/cobra"
+)
+
+var (
+	cl_blockonly bool
+	cl_fileonly bool
 )
 
 func init() {
@@ -25,6 +31,12 @@ func init() {
 	clusterCommand.AddCommand(clusterDeleteCommand)
 	clusterCommand.AddCommand(clusterListCommand)
 	clusterCommand.AddCommand(clusterInfoCommand)
+
+	clusterCreateCommand.Flags().BoolVar(&cl_blockonly, "block-only", false,
+		"\n\tOptional: Create a cluster that should only host block-hosting volumes. Disables hosting file volumes.")
+	clusterCreateCommand.Flags().BoolVar(&cl_fileonly, "file-only", false,
+		"\n\tOptional: Create a cluster that can only host regular file volumes. Disables hosting block-hosting volumes.")
+
 	clusterCreateCommand.SilenceUsage = true
 	clusterDeleteCommand.SilenceUsage = true
 	clusterInfoCommand.SilenceUsage = true
@@ -43,10 +55,23 @@ var clusterCreateCommand = &cobra.Command{
 	Long:    "Create a cluster",
 	Example: "  $ heketi-cli cluster create",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		req := &api.ClusterCreateRequest{}
+		req.File = true
+		req.Block = true
+		if cl_blockonly && cl_fileonly {
+			return fmt.Errorf("Invalid parameter mix: --block-only and --file-only can not be mixed.")
+		}
+		if cl_blockonly {
+			req.File = false
+		}
+		if cl_fileonly {
+			req.Block = false
+		}
+
 		// Create a client to talk to Heketi
 		heketi := client.NewClient(options.Url, options.User, options.Key)
 		// Create cluster
-		cluster, err := heketi.ClusterCreate()
+		cluster, err := heketi.ClusterCreate(req)
 		if err != nil {
 			return err
 		}

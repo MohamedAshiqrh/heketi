@@ -118,6 +118,10 @@ func NewMockExecutor() (*MockExecutor, error) {
 		blockVolumeInfo.GlusterVolumeName = blockVolume.GlusterVolumeName
 		blockVolumeInfo.Hacount = blockVolume.Hacount
 		blockVolumeInfo.Iqn = "fakeIQN"
+		if blockVolume.Auth {
+			blockVolumeInfo.Username = "heketi-user"
+			blockVolumeInfo.Password = "secret"
+		}
 		blockVolumeInfo.Name = blockVolume.Name
 		blockVolumeInfo.Size = blockVolume.Size
 

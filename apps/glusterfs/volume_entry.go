@@ -281,8 +281,9 @@ func (v *VolumeEntry) Create(db *bolt.DB,
 			return err
 		}
 	}
-	possibleClusters = candidateClusters
-
+	if len(candidateClusters) != 0 {
+		possibleClusters = candidateClusters
+	}
 	// Check we have clusters
 	if len(possibleClusters) == 0 {
 		logger.LogError("Volume being ask to be created, but there are no clusters configured")

@@ -221,8 +221,9 @@ func TestClusterInfo(t *testing.T) {
 	tests.Assert(t, err == nil)
 
 	// Check values are equal
-	fmt.Println("%v", msg)
 	tests.Assert(t, entry.Info.Id == msg.Id)
+	tests.Assert(t, entry.Info.Block == msg.Block)
+	tests.Assert(t, entry.Info.File == msg.File)
 	tests.Assert(t, entry.Info.Volumes[0] == msg.Volumes[0])
 	tests.Assert(t, entry.Info.Volumes[1] == msg.Volumes[1])
 	tests.Assert(t, entry.Info.Volumes[2] == msg.Volumes[2])

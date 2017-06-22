@@ -52,6 +52,9 @@ func NewClusterEntryFromRequest(req *api.ClusterCreateRequest) *ClusterEntry {
 	entry.Info.Block = req.Block
 	entry.Info.File = req.File
 
+	logger.Debug("NewClusterEntryFromRequest: (%v) File:  %v", entry.Info.Id, entry.Info.File)
+	logger.Debug("NewClusterEntryFromRequest: (%v) Block: %v", entry.Info.Id, entry.Info.Block)
+
 	return entry
 }
 
@@ -62,6 +65,9 @@ func NewClusterEntryFromId(tx *bolt.Tx, id string) (*ClusterEntry, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	logger.Debug("NewClusterEntryFromId: (%v) File:  %v", entry.Info.Id, entry.Info.File)
+	logger.Debug("NewClusterEntryFromId: (%v) Block: %v", entry.Info.Id, entry.Info.Block)
 
 	return entry, nil
 }
